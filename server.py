@@ -96,7 +96,7 @@ class RPCServer:
                     elif method_name not in self.methods:
                         response = {
                             'request_id': request_id,
-                            'error': f'Method "{method_name}" not found. Available: {list(self.methods.keys())}',
+                            'error': f'Method \"{method_name}\" not found',
                             'status': 'ERROR',
                             'server_timestamp': datetime.now().isoformat()
                         }
@@ -124,14 +124,14 @@ class RPCServer:
                         except TypeError as e:
                             response = {
                                 'request_id': request_id,
-                                'error': f'Invalid parameters: {str(e)}',
+                                'error': str(e),
                                 'status': 'ERROR',
                                 'server_timestamp': datetime.now().isoformat()
                             }
                         except Exception as e:
                             response = {
                                 'request_id': request_id,
-                                'error': f'Server error: {str(e)}',
+                                'error': str(e),
                                 'status': 'ERROR',
                                 'server_timestamp': datetime.now().isoformat()
                             }
@@ -141,12 +141,11 @@ class RPCServer:
                 except json.JSONDecodeError as e:
                     error_response = {
                         'request_id': 'unknown',
-                        'error': f'Invalid JSON: {str(e)}',
+                        'error': str(e),
                         'status': 'ERROR',
                         'server_timestamp': datetime.now().isoformat()
                     }
                     client_socket.send(json.dumps(error_response).encode('utf-8'))
-                    logging.error(f"JSON decode error: {e}")
                     
         except ConnectionResetError:
             logging.warning(f"Client {client_id} disconnected unexpectedly")
@@ -168,7 +167,6 @@ class RPCServer:
         logging.info(f"Host: {self.host}:{self.port}")
         logging.info(f"Available Methods: {list(self.methods.keys())}")
         logging.info("=" * 60)
-        logging.info("Waiting for connections...")
         
         try:
             while self.running:
@@ -179,7 +177,7 @@ class RPCServer:
                     daemon=True
                 ).start()
         except KeyboardInterrupt:
-            logging.info("Server shutting down gracefully...")
+            logging.info("Server shutting down")
         except Exception as e:
             logging.error(f"Server error: {e}")
         finally:
